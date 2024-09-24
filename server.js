@@ -1,34 +1,33 @@
 const express = require("express");
 const userRouter = require("./routes/userRoute");
 const cors = require("cors");
-const connectDB = require("./config/db");
+const connectDB = require("./config/db"); // Import the DB connection function
 
-require("dotenv").config();
+require("dotenv").config(); // Load environment variables
 const app = express();
 app.use(cors());
 
-const port = process.env.PORT || 9090;
-const db_url = process.env.MONGO_URI;
+const port = process.env.PORT || 9090; // Set the server port
 
+// Middleware to parse incoming JSON
 app.use(express.json());
 
-
+// Home Route
 app.get("/", (req, res) => {
-  res.send("this is a home route");
+  res.send("This is the home route");
 });
 
+// User Routes
+app.use("/user", userRouter);
 
-
-app.use('/user', userRouter);
-
+// Start the server and connect to the database
 app.listen(port, async () => {
   try {
-
-    connectDB(db_url);
-    console.log('we are successfully connected to the database')
-    console.log(`server is running at http://localhost:${port}`);
+    await connectDB(); // Call the connectDB function to connect to MongoDB
+    console.log("Successfully connected to the database");
+    console.log(`Server is running at http://localhost:${port}`);
   } catch (err) {
-    console.log(err);
-    console.log("we got the error while connecting to the database");
+    console.error("Error connecting to the database:", err);
+    process.exit(1); // Exit the process if database connection fails
   }
 });
