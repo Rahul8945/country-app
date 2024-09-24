@@ -2,7 +2,7 @@ const { Router } = require("express");
 const userModel = require("../models/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const blacklistModel = require("../models/blackListModel");
+const blacklistModel = require("../models/blacklistModel");
 require("dotenv").config();
 const userRouter = Router();
 

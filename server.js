@@ -8,10 +8,10 @@ const app = express();
 app.use(cors());
 
 const port = process.env.PORT || 9090;
-const db_url = process.env.DB_URL;
+const db_url = process.env.MONGO_URI;
 
 app.use(express.json());
-app.use(express.static('public'))
+
 
 app.get("/", (req, res) => {
   res.send("this is a home route");
