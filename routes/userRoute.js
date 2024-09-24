@@ -37,52 +37,31 @@ userRouter.post("/register", async (req, res) => {
 });
 
 userRouter.post("/login", async (req, res) => {
-  const { email, password } = req.body;
-
-  try {
-    const user = await userModel.findOne({ email });
-    if (!user) {
-      return res.status(400).json({ message: "Invalid email or password" });
+    const { email, password } = req.body;
+  
+    try {
+      const user = await userModel.findOne({ email });
+      if (!user) {
+        return res.status(400).json({ message: "Invalid email or password" });
+      }
+  
+      const match = await bcrypt.compare(password, user.password);
+      if (!match) {
+        return res.status(400).json({ message: "Invalid email or password" });
+      }
+  
+      const payload = { email };
+  
+      const access_token = jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: "10min" });
+      const refresh_token = jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: "7d" }); // Adjust refresh token lifespan
+  
+      res.status(200).json({ access_token, refresh_token });
+    } catch (err) {
+      console.error("Login error:", err); // Log the error
+      res.status(500).json({ message: "Internal server error" });
     }
-
-    const match = await bcrypt.compare(password, user.password);
-
-    // console.log(password,user.password);
-    if (!match) {
-      return res.status(400).json({ message: "Invalid email or password" });
-    }
-
-    const payload = { email };
-
-    const access_token = jwt.sign(
-      payload,
-      process.env.SECRET_KEY,
-      { expiresIn: "10min" },
-      // (err, token) => {
-      //   if (err) console.log(err);
-      //   console.log(token);
-      //   res.status(200).json({ token: token });
-      // }
-    );
-
-
-    const refresh_token = jwt.sign(
-      payload,
-      process.env.SECRET_KEY,
-      { expiresIn: "10min" },
-      // (err, token) => {
-      //   if (err) console.log(err);
-      //   console.log(token);
-      //   res.status(200).json({access_token,refresh_token});
-      // }
-    );
-
-    res.status(200).json({access_token,refresh_token});
-    // res.status(200).json({ message: "Login successful", user });
-  } catch (err) {
-    res.status(500).json({ message: "Internal server error" });
-  }
-});
+  });
+  
 
 userRouter.get("/logout", async (req, res) => {
   try {
